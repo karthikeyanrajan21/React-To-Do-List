@@ -1,0 +1,23 @@
+name: "JFrog NPM Integration Example"
+on: 
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: https://knra.jfrog.io 
+        with:
+          oidc-provider-name: github-jfrog 
+          oidc-audience: my-aud
