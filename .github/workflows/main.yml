@@ -1,45 +1,36 @@
-name: "JFrog Integration Example"
-on: push
+name: "JFrog NPM Integration Example"
+on: 
+  push:
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
-     runs-on: ubuntu-latest
-       
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v3
-         
-       - name: Setup JFrog CLI
-         uses: jfrog/setup-jfrog-cli@v3
-         env:  
-           JF_URL: ${{ secrets.JF_URL }}
-           JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-           
-       - name: Setup Node npm
-         uses: actions/setup-node@v3
-           
-       - name: Set CLI Config
-         run: jf npm-config --global=true --repo-resolve=knnpm-npm --repo-deploy=knnpm-npm
-           
-       - name: Install Deps
-         run: jf npm install
-           
-       - name: Build Project
-         run: npm run build
-         
-       - name: Push Artifacts to JFrog
-         run: |
-           # Replace 'build/*' with the actual path of the built artifacts
-           jf rt u "build/*" "knnpm-npm/path/to/artifacts/" --recursive
-         
-       - name: Publish
-         run: jf npm publish
-         
-       - name: Publish Build info With JFrog CLI
-         run: |
-           # Collect environment variables for the build
-           jf rt build-collect-env
-           # Collect VCS details from git and add them to the build
-           jf rt build-add-git
-           # Publish build info
-           jf rt build-publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: https://knra.jfrog.io 
+        with:
+          oidc-provider-name: github-jfrog 
+          oidc-audience: my-aud
+
+      - name: Build project
+        run: |
+          # Add your build commands here, e.g., npm install, npm run build
+          npm install
+          npm run build
+
+      - name: Upload artifacts to JFrog
+        run: |
+          jfrog rt u "React-To-Do-List/build/**/*" "knnpm-npm/" --recursive
+        env:
+          JF_USER: ${{ secrets.JF_USER }}  # Add your JFrog username in GitHub secrets
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}  # Add your JFrog password in GitHub secrets
