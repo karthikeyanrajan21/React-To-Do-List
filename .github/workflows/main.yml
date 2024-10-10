@@ -21,16 +21,3 @@ jobs:
         with:
           oidc-provider-name: github-jfrog 
           oidc-audience: my-aud
-
-      - name: Build project
-        run: |
-          # Add your build commands here, e.g., npm install, npm run build
-          npm install
-          npm run build
-
-      - name: Upload artifacts to JFrog
-        run: |
-          jfrog rt u "React-To-Do-List/build/**/*" "knnpm-npm/" --recursive
-        env:
-          JF_USER: ${{ secrets.JF_USER }}  # Add your JFrog username in GitHub secrets
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}  # Add your JFrog password in GitHub secrets
