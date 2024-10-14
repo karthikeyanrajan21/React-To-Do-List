@@ -27,10 +27,13 @@ jobs:
        - name: Build Project
          run: npm run build
          
+       - name: Archive Artifacts into Zip
+         run: zip -r build.zip build/
+         
        - name: Push Artifacts to JFrog
          run: |
-           # Replace 'build/*' with the actual path of the built artifacts
-           jf rt u "build/*" "knnpm-npm/path/to/artifacts/" --recursive
+           # Upload the zip file to the specified path in JFrog Artifactory
+           jf rt u "build.zip" "knnpm-npm/path/to/artifacts/build.zip"
          
        - name: Publish
          run: jf npm publish
