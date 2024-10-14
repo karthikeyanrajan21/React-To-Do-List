@@ -27,6 +27,11 @@ jobs:
        - name: Build Project
          run: npm run build
          
+       - name: Push Artifacts to JFrog
+         run: |
+           # Replace 'build/*' with the actual path of the built artifacts
+           jf rt u "build/*" "knnpm-npm/path/to/artifacts/" --recursive
+         
        - name: Publish
          run: jf npm publish
          
