@@ -37,7 +37,7 @@ jobs:
        - name: Push Artifacts to JFrog
          run: |
            # Upload the zip file with timestamp in its name to JFrog Artifactory
-           jf rt u "build_${{ env.TIMESTAMP }}.tgz" "knnpm-npm/path/to/artifacts/build_${{ env.TIMESTAMP }}.tgz"
+           jf rt u "build_${{ env.TIMESTAMP }}.zip" "knnpm-npm/path/to/artifacts/build_${{ env.TIMESTAMP }}.zip"
          
        - name: Publish
          run: jf npm publish
