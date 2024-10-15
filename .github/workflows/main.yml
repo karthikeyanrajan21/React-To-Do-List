@@ -3,50 +3,61 @@ on: push
 
 jobs:
   build:
-     runs-on: ubuntu-latest
-       
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v3
-         
-       - name: Setup JFrog CLI
-         uses: jfrog/setup-jfrog-cli@v3
-         env:  
-           JF_URL: ${{ secrets.JF_URL }}
-           JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-           
-       - name: Setup Node npm
-         uses: actions/setup-node@v3
-           
-       - name: Set CLI Config
-         run: jf npm-config --global=true --repo-resolve=knnpm-npm --repo-deploy=knnpm-npm
-           
-       - name: Install Deps
-         run: jf npm install
-           
-       - name: Build Project
-         run: npm run build
-         
-       - name: Get Current Timestamp
-         id: vars
-         run: echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-         
-       - name: Archive Artifacts into Zip with Timestamp
-         run: zip -r build_${{ env.TIMESTAMP }}.zip build/
-         
-       - name: Push Artifacts to JFrog
-         run: |
-           # Upload the zip file with timestamp in its name to JFrog Artifactory
-           jf rt u "build_${{ env.TIMESTAMP }}.zip" "knnpm-npm/path/to/artifacts/build_${{ env.TIMESTAMP }}.zip"
-         
-       - name: Publish
-         run: jf npm publish
-         
-       - name: Publish Build info With JFrog CLI
-         run: |
-           # Collect environment variables for the build
-           jf rt build-collect-env
-           # Collect VCS details from git and add them to the build
-           jf rt build-add-git
-           # Publish build info
-           jf rt build-publish
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      # Setup JFrog CLI for communication with JFrog Artifactory
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v3
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+        
+      # Setup Node.js for the project
+      - name: Setup Node npm
+        uses: actions/setup-node@v3
+        
+      # Configure JFrog for npm repositories
+      - name: Set CLI Config
+        run: jf npm-config --global=true --repo-resolve=knnpm-npm --repo-deploy=knnpm-npm
+        
+      # Install project dependencies using npm and JFrog CLI
+      - name: Install Deps
+        run: jf npm install
+        
+      # Build the project
+      - name: Build Project
+        run: npm run build
+        
+      # Get current timestamp to use in file names
+      - name: Get Current Timestamp
+        id: vars
+        run: echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+        
+      # Archive the build directory into a zip file with a timestamp
+      - name: Archive Artifacts into Zip with Timestamp
+        run: zip -r build_${{ env.TIMESTAMP }}.zip build/
+        
+      # Push the compressed zip file to JFrog Artifactory
+      - name: Push Artifacts to JFrog
+        run: |
+          # Upload the zip file with timestamp to JFrog Artifactory
+          jf rt u "build_${{ env.TIMESTAMP }}.zip" "knnpm-npm/path/to/artifacts/build_${{ env.TIMESTAMP }}.zip"
+        
+      # Publish the npm package to JFrog Artifactory
+      - name: Publish
+        run: jf npm publish
+        
+      # Publish build information to JFrog
+      - name: Publish Build info With JFrog CLI
+        run: |
+          # Collect environment variables for the build
+          jf rt build-collect-env
+          # Collect VCS details from git and add them to the build
+          jf rt build-add-git
+          # Publish build info
+          jf rt build-publish
